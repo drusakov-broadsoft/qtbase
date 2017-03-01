@@ -343,10 +343,18 @@ void QWindowsOleDropSource::createCursors()
 
         if (const HCURSOR sysCursor = QWindowsCursor::createPixmapCursor(newPixmap, newHotSpot)) {
             const CursorEntry entry(newPixmap, cacheKey, CursorHandlePtr(new CursorHandle(sysCursor)), newHotSpot);
-            if (it == m_cursors.end())
-                m_cursors.insert(action, entry);
-            else
-                it.value() = entry;
+            if (it == m_cursors.end()) {
+                if (action == Qt::IgnoreAction)
+                    m_cursors.insert(action, m_cursors.value(Qt::MoveAction));
+                else
+                    m_cursors.insert(action, entry);
+            }
+            else {
+                if (action == Qt::IgnoreAction)
+                    it.value() = m_cursors.value(Qt::MoveAction);
+                else
+                    it.value() = entry;
+            }
         }
     }
 #ifndef QT_NO_DEBUG_OUTPUT
